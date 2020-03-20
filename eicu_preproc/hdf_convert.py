@@ -12,16 +12,26 @@ import glob as glob
 import ipdb
 import gc
 
+pe = os.path.exists
+pj = os.path.join
+HOME = os.path.expanduser("~")
+
 TABLES=["admissionDrug", "admissionDx", "allergy", "apacheApsVar",
         "apachePatientResult", "apachePredVar", "carePlanCareProvider", 
         "carePlanEOL", "carePlanGeneral" , "carePlanGoal",
         "carePlanInfectiousDisease", "customLab", "diagnosis", "hospital", 
         "infusionDrug", "intakeOutput", "lab", "medication", "microLab", "note",
-        "nurseAssessment", "nurseCare", "nurseCharting", 
+        "nurseAssessment", "nurseCare", 
         "pastHistory", "patient", "physicalExam", "respiratoryCare",
         "respiratoryCharting", "treatment", "vitalAperiodic", "vitalPeriodic"]
+# TODO Removing nurseCharting.csv for the momemtn because it's too big
 
 def hdf_convert(configs):
+    if configs["use_nurseCharting"]:
+        TABLES += ["nurseCharting"]
+    else:
+        print("WARNING: Table nurseCharting.csv not being converted due to " \
+                "memory restrictions")
     
     for table in TABLES:
 
@@ -74,6 +84,10 @@ if __name__=="__main__":
     parser.add_argument("--dest_dir", default="../data/hdf",
             help="Destination directory where the HDF tables should be saved " \
                     "into")
+
+    parser.add_argument("--nc", "--use-nurseCharting", dest="use_nurseCharting",
+            action="store_true",
+            help="This file crashes a 64GB RAM machine")
 
     args=parser.parse_args()
     configs=vars(args)
