@@ -134,7 +134,9 @@ def filter_variables(configs):
         df_var.plot.hist(bins=100, ax=axarr[0], log=True, range=(lower_cutoff,
             upper_cutoff))
         df_var.plot.box(ax=axarr[1], sym="", vert=False)
-        plt.clf()
+        plt.savefig(pj(configs["plots_dir"],
+            "per_"+var.replace(" ","_")+".png"))
+        plt.close()
         gc.collect()
         lower = np.percentile(np.array(df_var), 25)-5*sp_stats.iqr(np.array(\
                 df_var))
@@ -155,7 +157,9 @@ def filter_variables(configs):
         df_var.plot.hist(bins=100, ax=axarr[0], log=True, range=(lower_cutoff,
             upper_cutoff))
         df_var.plot.box(ax=axarr[1], sym="", vert=False)
-        plt.clf()
+        plt.savefig(pj(configs["plots_dir"],
+            "aper_"+var.replace(" ","_")+".png"))
+        plt.close()
         gc.collect()
         lower = np.percentile(np.array(df_var), 25)-5*sp_stats.iqr(np.array(\
                 df_var))
@@ -178,7 +182,9 @@ def filter_variables(configs):
         df_var.plot.hist(bins=100, ax=axarr[0], range=(lower_cutoff,
             upper_cutoff), log=True)
         df_var.plot.box(ax=axarr[1], sym="", vert=False)
-        plt.clf()
+        plt.savefig( pj(configs["plots_dir"],
+            "lab_"+var.replace(" ","_")+".png") )
+        plt.close()
         gc.collect()
         lower = np.percentile(np.array(df_var), 25)-5*sp_stats.iqr(np.array(\
                 df_var))
@@ -208,6 +214,8 @@ if __name__ == "__main__":
     parser.add_argument("--output_selected_lab_vars",
             default=pj(HOME, "Datasets/eicu-2.0/included_lab_variables.txt"),
             help="Location to save the list of selected lab variables")
+    parser.add_argument("--plots-dir", type=str,
+            default=pj(HOME, "Datasets/eicu-2.0/plots"))
 
     # Parameters
     parser.add_argument("--debug_mode", action="store_true", default=False,
