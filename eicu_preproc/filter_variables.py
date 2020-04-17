@@ -23,10 +23,10 @@ HOME = os.path.expanduser("~")
 
 def filter_variables(configs):
 
-    vital_variables = ["temperature", "sao2", "heartrate", "respiration", "cvp",
-            "etco2", "systemicsystolic", "systemicdiastolic",
-            "systemicmean", "pasystolic", "padiastolic", "pamean", "st1", "st2",
-            "st3", "icp"]
+    vital_variables = ["temperature", "sao2", "heartrate", "respiration",
+            "cvp", "etco2", "systemicsystolic", "systemicdiastolic",
+            "systemicmean", "pasystolic", "padiastolic", "pamean", "st1",
+            "st2", "st3", "icp"]
 
     vital_aper_variables = ["noninvasivesystolic", "noninvasivediastolic",
             "noninvasivemean", "paop", "cardiacoutput", "cardiacinput", "svr",
