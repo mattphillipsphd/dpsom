@@ -35,8 +35,8 @@ def label_all_patients(configs):
         log_result_file=os.path.join(configs["log_base_dir"],
                 "label_batch_{}_RESULT.txt".format(batch_idx))
         mlhc_fs.delete_if_exist(log_result_file)
-
-       cmd_line = " ".join(["python3", compute_script_path,
+        
+        cmd_line = " ".join(["python3", compute_script_path,
            "--run_mode INTERACTIVE", "--batch_id {}".format(batch_idx)])
 
 #        cmd_line=" ".join(["bsub", "-R", "rusage[mem={}]".format(mem_in_mbytes), "-n", "{}".format(n_cpu_cores), "-r", "-W", "{}:00".format(n_compute_hours), 
