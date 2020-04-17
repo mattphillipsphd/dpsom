@@ -20,8 +20,8 @@ TABLES=["admissionDrug", "admissionDx", "allergy", "apacheApsVar",
         "apachePatientResult", "apachePredVar", "carePlanCareProvider", 
         "carePlanEOL", "carePlanGeneral" , "carePlanGoal",
         "carePlanInfectiousDisease", "customLab", "diagnosis", "hospital", 
-        "infusionDrug", "intakeOutput", "lab", "medication", "microLab", "note",
-        "nurseAssessment", "nurseCare", 
+        "infusionDrug", "intakeOutput", "lab", "medication", "microLab",
+        "note", "nurseAssessment", "nurseCare", 
         "pastHistory", "patient", "physicalExam", "respiratoryCare",
         "respiratoryCharting", "treatment", "vitalAperiodic", "vitalPeriodic"]
 # TODO Removing nurseCharting.csv for the momemtn because it's too big
@@ -85,8 +85,8 @@ if __name__=="__main__":
             help="Destination directory where the HDF tables should be saved " \
                     "into")
 
-    parser.add_argument("--nc", "--use-nurseCharting", dest="use_nurseCharting",
-            action="store_true",
+    parser.add_argument("--nc", "--use-nurseCharting",
+            dest="use_nurseCharting", action="store_true",
             help="This file crashes a 64GB RAM machine")
 
     args=parser.parse_args()

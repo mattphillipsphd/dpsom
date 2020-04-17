@@ -23,8 +23,8 @@ def compute_patient_batches(configs):
         configs["batch_size_patients_per_file"])):
         sub_pid_list = pid_list[base_idx:base_idx+configs[\
                 "batch_size_patients_per_file"]]
-        batch_to_list_dict[batch_run_idx] = pid_list[base_idx:base_idx+configs[\
-                "batch_size_patients_per_file"]]
+        batch_to_list_dict[batch_run_idx] = pid_list[ \
+                base_idx:base_idx+configs["batch_size_patients_per_file"] ]
         for pid in sub_pid_list:
             pid_to_batch_dict[pid] = batch_run_idx
 
