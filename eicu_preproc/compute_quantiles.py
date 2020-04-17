@@ -16,7 +16,7 @@ HOME = os.path.expanduser("~")
 
 def save_variable_quantiles(configs):
     ''' Saves the quantiles of all variables in the LAB/VITAL SIGN tables'''
-    all_pids=mlhc_io.read_list_from_file(configs["included_pid_path"])
+    all_pids = mlhc_io.read_list_from_file(configs["included_pid_path"])
     vital_per_variables = mlhc_io.read_list_from_file(\
             configs["list_per_variables"])
     vital_aper_variables = mlhc_io.read_list_from_file(\
@@ -39,11 +39,25 @@ def save_variable_quantiles(configs):
             var_quantiles["lab_"+lab_var].append(quant_val)
 
         print("List length: {}".format(len(var_quantiles["lab_"+lab_var])))
-        
     gc.collect()
+        
     print("Vital periodic table...")
-    df_vital_per = pd.read_hdf(configs["vital_per_path"],mode='r')
-    df_vital_per = df_vital_per[df_vital_per.patientunitstayid.isin(all_pids)]
+    found_eof = False
+    ct = 0
+    blk_sz = 1000000
+    df_cts = []
+    num_records = 0
+    while not found_eof:
+        df_ct = pd.read_hdf(configs["vital_per_path"], mode='r',
+                start=ct*blk_sz, stop=(ct+1)*blk_sz)
+        if len(df_ct) != blk_sz:
+            found_eof = True
+        df_ct = df_ct[ df_ct.patientunitstayid.isin(all_pids) ]
+        df_cts.append(df_ct)
+        num_records += len(df_ct)
+        ct += 1
+        print("%d Vital periodic records loaded" % num_records)
+    df_vital_per = pd.concat(df_cts)
     print("Loaded vital periodic table with {} rows".format(\
             df_vital_per.shape[0]))
 
