@@ -1,0 +1,7 @@
+h5py does not work well with virtual environments (virtualenv).  In particular, if there is compression in the file, h5py will look for plugins in /usr/local/hdf5/lib/plugin but find no such directory.  To solve this it is sufficient to pip install the plugins then create a symbolic link:
+
+$ pip install hdf5plugin
+$ sudo ln -s ~/.virtualenvs/eicu/lib/python3.6/site-packages/hdf5plugin/plugins/ /usr/local/hdf5/lib/plugin
+
+for a virtualenv named 'eicu'.
+

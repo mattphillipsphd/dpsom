@@ -15,6 +15,9 @@ HOME = os.path.expanduser("~")
 
 
 def get_normalized_data(data, patientid, mins, scales):
+    if mins==None or scales==None:
+        return ( data[data['patientunitstayid'] == patientid] ).drop(\
+                ["patientunitstayid", "ts"], axis=1).fillna(0).values
     return ((data[data['patientunitstayid'] == patientid] - mins) /
             scales).drop(["patientunitstayid", "ts"], axis=1).fillna(0).values
 
@@ -85,21 +88,29 @@ data_total = glob( pj(HOME, "Datasets/eicu-2.0/time_grid/batch_*.h5") )
 # path of the labels of the preprocessed data
 endpoints_total = glob( pj(HOME, "Datasets/eicu-2.0/labels/batch_*.h5") )
 
-# path of the labels of the mins
-mins_dynamic = pd.read_hdf( pj(HOME, "Datasets/eicu-2.0/time_grid/" \
-        "normalization_values.h5"), "mins_dynamic")
+normalization_path = pj(HOME, "Datasets/eicu-2.0/time_grid/" \
+        "normalization_values.h5")
+if pe(normalization_path):
+    # path of the labels of the mins
+    mins_dynamic = pd.read_hdf(normalization_path , "mins_dynamic")
 
-# path of the labels of the scales
-scales_dynamic = pd.read_hdf( pj(HOME, "Datasets/eicu-2.0/time_grid/" \
-        "normalization_values.h5"), "scales_dynamic")
+    # path of the labels of the scales
+    scales_dynamic = pd.read_hdf(normalization_path, "scales_dynamic")
+    has_normalization = True
+else:
+    mins_dynamic,scales_dynamic = None, None
+    print("Warning: using non-normalized data")
+    has_normalization = False
 
 # *****************************************************************************
 
 # Create numpy arrays with the last 72 time-steps of each time-series.
-data, labels = parmap_batch_generator(data_total, endpoints_total, mins_dynamic, scales_dynamic, max_n_step=72)
+data, labels = parmap_batch_generator(data_total, endpoints_total,
+        mins_dynamic, scales_dynamic, max_n_step=72)
 l = np.array(labels)
 d = np.array(data)
-hf = h5py.File('../data/eICU_data.csv', 'w')
+output_name = "eICU_data.csv" if has_normalization else "eICU_data_nonorm.csv"
+hf = h5py.File( pj(HOME, "Datasets/eicu-2.0", output_name), 'w')
 hf.create_dataset('x', data=d)
 hf.create_dataset('y', data=l)
 hf.close()
