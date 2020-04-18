@@ -22,8 +22,8 @@ def filter_patients(configs):
     for pidx, pid in enumerate(pid_list):
         if (pidx+1) % 100 == 0:
             print("PID: {}/{}".format(pidx+1, len(pid_list)))
-            print("Included patient stays: {}/{}".format(len(included_patients),
-                pidx+1))
+            print("Included patient stays: {}/{}".format(\
+                    len(included_patients), pidx+1))
         df_vs = pd.read_hdf(configs["vital_per_table_path"], mode='r',
                 where="patientunitstayid={}".format(pid))
         df_vs.sort_values(by="observationoffset", inplace=True,
