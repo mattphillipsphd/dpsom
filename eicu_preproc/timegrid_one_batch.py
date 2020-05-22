@@ -40,6 +40,7 @@ def timegrid_one_batch(configs):
     first_write = True
     create_static = configs["create_static"]
     create_dynamic = configs["create_dynamic"]
+    create_async = configs["create_async"]
     print("Dispatched batch {} with {} patients".format(batch_id,
         len(batch_idxs)))
 
@@ -64,7 +65,7 @@ def timegrid_one_batch(configs):
             df_static = static_extractor.transform(df_pat, df_adm, df_aav,
                     df_apr, df_apv, pid=pid)
 
-        if create_dynamic:
+        if create_dynamic or create_async:
             lab_vars = []
 
             with open(configs["selected_lab_vars"], 'r') as fp:
@@ -87,43 +88,37 @@ def timegrid_one_batch(configs):
                     mode='r', where="patientunitstayid={}".format(pid))
             df_avs = pd.read_hdf(configs["input_vital_aperiodic_table"],
                     mode='r', where="patientunitstayid={}".format(pid))
-            df_out = grid_model.transform(df_lab, df_vs, df_avs, pid=pid)
-
-        if first_write:
-
             if create_dynamic:
-                df_out.to_hdf(os.path.join(configs["output_dynamic_dir"],
-                    "batch_{}.h5".format(batch_id)), configs["output_dset_id"],
-                    append=False, data_columns=["patientunitstayid"],
-                    mode='w', format="table",
-                    complevel=configs["hdf_comp_level"],
-                    complib=configs["hdf_comp_alg"])
+                df_out = grid_model.transform(df_lab, df_vs, df_avs, pid=pid)
+            if create_async:
+                df_async = grid_model.pick(df_lab, df_vs, df_avs, pid=pid)
 
-            if create_static:
-                df_static.to_hdf(os.path.join(configs["output_static_dir"],
-                    "batch_{}.h5".format(batch_id)), configs["output_dset_id"],
-                    append=False, data_columns=["patientunitstayid"],
-                    mode='w', format="table",
-                    complevel=configs["hdf_comp_level"],
-                    complib=configs["hdf_comp_alg"])
+        append = not first_write
+        mode = 'a' if first_write else 'w'
 
-        else:
+        if create_dynamic:
+            df_out.to_hdf(os.path.join(configs["output_dynamic_dir"],
+                "batch_{}.h5".format(batch_id)), configs["output_dset_id"],
+                append=append, data_columns=["patientunitstayid"],
+                mode=mode, format="table",
+                complevel=configs["hdf_comp_level"],
+                complib=configs["hdf_comp_alg"])
 
-            if create_dynamic:
-                df_out.to_hdf(os.path.join(configs["output_dynamic_dir"],
-                    "batch_{}.h5".format(batch_id)), configs["output_dset_id"],
-                    append=True, data_columns=["patientunitstayid"],
-                    mode='a', format="table",
-                    complevel=configs["hdf_comp_level"],
-                    complib=configs["hdf_comp_alg"])
+        if create_async:
+            df_async.to_hdf(os.path.join(configs["output_async_dir"],
+                "batch_{}.h5".format(batch_id)), configs["output_dset_id"],
+                append=append, data_columns=["patientunitstayid"],
+                mode=mode, format="table",
+                complevel=configs["hdf_comp_level"],
+                complib=configs["hdf_comp_alg"])
 
-            if create_static:
-                df_static.to_hdf(os.path.join(configs["output_static_dir"],
-                    "batch_{}.h5".format(batch_id)), configs["output_dset_id"],
-                    append=True, data_columns=["patientunitstayid"],
-                    mode='a', format="table",
-                    complevel=configs["hdf_comp_level"],
-                    complib=configs["hdf_comp_alg"])
+        if create_static:
+            df_static.to_hdf(os.path.join(configs["output_static_dir"],
+                "batch_{}.h5".format(batch_id)), configs["output_dset_id"],
+                append=append, data_columns=["patientunitstayid"],
+                mode=mode, format="table",
+                complevel=configs["hdf_comp_level"],
+                complib=configs["hdf_comp_alg"])
 
         first_write = False
 
@@ -181,6 +176,9 @@ if __name__ == "__main__":
     parser.add_argument("--output_dynamic_dir",
             default=pj(HOME, "Datasets/eicu-2.0/time_grid"),
             help="Specify the output directory for dynamic time grid data")
+    parser.add_argument("--output_async_dir",
+            default=pj(HOME, "Datasets/eicu-2.0/async_data"),
+            help="Specify the output directory for dynamic non-time grid data")
     parser.add_argument("--log_dir",
             default=pj(HOME, "Datasets/eicu-2.0/logs"),
             help="Logging directory") 
@@ -189,11 +187,14 @@ if __name__ == "__main__":
     
     # What output should be created?
     parser.add_argument('--create_static',
-            default=True,
+            default=False,
             help="Should static variables be output?")
     parser.add_argument("--create_dynamic",
-            default=True,
+            default=False,
             help="Should dynamic variables be output?")
+    parser.add_argument("--create_async",
+            default=False,
+            help="Should dynamic variables without timegridding be output?")
     parser.add_argument("--batch_id", type=int,
             default=0,
             help="Batch index to process in this script")

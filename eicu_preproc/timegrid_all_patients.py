@@ -28,6 +28,11 @@ def timegrid_all_patients(configs):
         batch_to_lst=obj["batch_to_lst"]
         batches=list(sorted(batch_to_lst.keys()))
 
+    create_pars = []
+    for p in ["create_static", "create_dynamic", "create_async"]:
+        if configs[p]:
+            create_pars.append("--" + p + " True")
+
     for batch_idx in batches:
         print("Dispatching imputation for batch {}".format(batch_idx))
         job_name = "impute_batch_{}".format(batch_idx)
@@ -36,7 +41,8 @@ def timegrid_all_patients(configs):
         mlhc_fs.delete_if_exist(log_result_file)
 
         cmd_line=" ".join(["python3", configs["compute_script_path"],
-            "--run_mode INTERACTIVE", "--batch_id {}".format(batch_idx)])
+            "--run_mode INTERACTIVE", "--batch_id {}".format(batch_idx)] \
+                    + create_pars)
 
         assert(" rm " not in cmd_line)
         job_index+=1
@@ -74,6 +80,9 @@ if __name__=="__main__":
     parser.add_argument("--nhours", type=int,
             default=4,
             help="Number of hours to request")
+    parser.add_argument("--create_static", action="store_true")
+    parser.add_argument("--create_dynamic", action="store_true")
+    parser.add_argument("--create_async", action="store_true")
 
     args=parser.parse_args()
     configs=vars(args)
