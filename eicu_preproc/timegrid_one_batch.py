@@ -91,7 +91,8 @@ def timegrid_one_batch(configs):
             if create_dynamic:
                 df_out = grid_model.transform(df_lab, df_vs, df_avs, pid=pid)
             if create_async:
-                df_async = grid_model.pick(df_lab, df_vs, df_avs, pid=pid)
+                df_async = grid_model.save_async(df_lab, df_vs, df_avs,
+                        pid=pid, timegrid_step_mins=1)
 
         append = not first_write
         mode = 'a' if first_write else 'w'
