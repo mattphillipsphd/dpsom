@@ -56,6 +56,13 @@ class Timegridder():
 
         self.create_pid_col = True
 
+        # These variables are set differently for asyncronous data
+        self._cache_tsm = None
+        self._cache_mffsv = None
+        self._cache_mffsa = None
+        self._cache_mffsl = None
+        self._cache_cpc = None
+
     def set_quantile_dict(self, quantile_dict):
         ''' Sets internal state with quantile dict'''
         self.var_quantile_dict=quantile_dict
@@ -66,10 +73,8 @@ class Timegridder():
 
     # This is going to collate all the data from each table, per patient, and
     # save it for a given patient.
-    def save_async(self, df_lab, df_vs, df_avs, pid=None,
-            timegrid_step_mins=None):
-        if timegrid_step_mins is not None:
-            self.timegrid_step_mins = timegrid_step_mins
+    def save_async(self, df_lab, df_vs, df_avs, pid=None):
+        self._adapt_vars_for_async(reset=False)
 
         df_lab.sort_values(by="labresultoffset", inplace=True,
                 kind="mergesort")
@@ -89,9 +94,6 @@ class Timegridder():
         if self.create_pid_col:
             df_out_dict["patientunitstayid"] = []
 
-        # So use dropna() with any=all
-
-        # dropna() drops rows by default
         for var in self.sel_vs_vars:
             finite_df = df_vs[["observationoffset", var]].dropna() 
             raw_ts = np.array(finite_df["observationoffset"])
@@ -134,7 +136,10 @@ class Timegridder():
 
             df_out_dict["lab_{}".format(var)] = pred_values
 
+        self._adapt_vars_for_async(reset=True)
+
         df_out = pd.DataFrame(df_out_dict)
+        df_out = df_out.dropna(how="all")
         return df_out
 
     def transform(self, df_lab, df_vs, df_avs, pid=None):
@@ -199,3 +204,24 @@ class Timegridder():
 
         df_out = pd.DataFrame(df_out_dict)
         return df_out
+
+    def _adapt_vars_for_async(self, reset):
+        if reset:
+            self.timegrid_step_mins = self._cache_tsm
+            self.max_forward_fill_secs_vs = self._cache_mffsv
+            self.max_forward_fill_secs_avs = self._cache_mffsa
+            self.max_forward_fill_secs_lab = self._cache_mffsl
+            self.create_pid_col = self._cache_cpc
+        else:
+            self._cache_tsm = self.timegrid_step_mins
+            self._cache_mffsv = self.max_forward_fill_secs_vs
+            self._cache_mffsa = self.max_forward_fill_secs_avs
+            self._cache_mffsl = self.max_forward_fill_secs_lab
+            self._cache_cpc = self.create_pid_col
+            
+            self.timegrid_step_mins = 1
+            self.max_forward_fill_secs_vs = 0
+            self.max_forward_fill_secs_avs = 0
+            self.max_forward_fill_secs_lab = 0
+            self.create_pid_col = False
+

@@ -9,8 +9,9 @@ def nan_ratio(in_arr):
     return np.sum(in_arr)/in_arr.size
 
 def print_nan_stats(in_arr):
-    print("[0.0: {:.5f}, 1.0: {:.5f}, NAN: {:.5f}]".format(np.sum(in_arr==0.0)/in_arr.size,np.sum(in_arr==1.0)/in_arr.size,
-                                                           np.sum(np.isnan(in_arr))/in_arr.size))
+    print("[0.0: {:.5f}, 1.0: {:.5f}, NAN: {:.5f}]".format(np.sum(in_arr==0.0)\
+            /in_arr.size,np.sum(in_arr==1.0)/in_arr.size,
+            np.sum(np.isnan(in_arr))/in_arr.size))
 
 def pos_ratio(in_arr):
     return np.sum(in_arr==1.0/in_arr.size)
@@ -19,7 +20,8 @@ def column_statistics_median_std(in_arr):
     median_arr=np.median(in_arr,axis=0)
     std_arr=np.std(in_arr,axis=0)
     for i in range(median_arr.size):
-        print("Col {}: MED: {:.3f}, STD: {:.3f}".format(i,median_arr[i],std_arr[i]))
+        print("Col {}: MED: {:.3f}, STD: {:.3f}".format(i,median_arr[i],
+            std_arr[i]))
 
 def first_last_diff(in_arr):
     return in_arr[-1]-in_arr[0]
@@ -65,7 +67,3 @@ def array_mode(in_arr):
     midpoint=(edges[max_idx]+edges[max_ids+1])/2
     return midpoint
 
-
-
-
-    

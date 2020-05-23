@@ -10,6 +10,8 @@ import sys
 
 import functions.util_filesystem as mlhc_fs
 
+sys.path.append(os.path.dirname(os.path.abspath(__file__)))
+
 pe = os.path.exists
 pj = os.path.join
 HOME = os.path.expanduser("~")
@@ -51,6 +53,8 @@ def timegrid_all_patients(configs):
             subprocess.call([cmd_line], shell=True)
         else:
             print("Generated cmd line: [{}]".format(cmd_line))
+        if configs["just_one_batch"]:
+            break
 
 if __name__=="__main__":
     
@@ -74,6 +78,8 @@ if __name__=="__main__":
     parser.add_argument("--dry_run", action="store_true",
             default=False,
             help="Dry run, do not generate any jobs")
+    parser.add_argument("--j1", "--just-one-batch", dest="just_one_batch",
+            action="store_true")
     parser.add_argument("--mem_in_mbytes", type=int,
             default=5000,
             help="Number of MB to request per script")

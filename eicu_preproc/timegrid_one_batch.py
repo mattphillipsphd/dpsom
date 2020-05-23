@@ -18,8 +18,13 @@ import pandas as pd
 import matplotlib as mpl
 mpl.use("PDF")
 
-import classes.imputer as eicu_tf_impute
-import classes.static_extractor as eicu_static_tf
+sys.path.append("/home/matt/Repos/mattphillipsphd/dpsom/eicu_preproc/classes")
+import imputer as eicu_tf_impute
+import static_extractor as eicu_static_tf
+# Ridiculous but apparently necessary since this is called as a subprocess!
+
+#import classes.imputer as eicu_tf_impute
+#import classes.static_extractor as eicu_static_tf
 
 import functions.util_io as mlhc_io
 
@@ -92,7 +97,7 @@ def timegrid_one_batch(configs):
                 df_out = grid_model.transform(df_lab, df_vs, df_avs, pid=pid)
             if create_async:
                 df_async = grid_model.save_async(df_lab, df_vs, df_avs,
-                        pid=pid, timegrid_step_mins=1)
+                        pid=pid)
 
         append = not first_write
         mode = 'a' if first_write else 'w'
