@@ -34,6 +34,8 @@ def timegrid_all_patients(configs):
     for p in ["create_static", "create_dynamic", "create_async"]:
         if configs[p]:
             create_pars.append("--" + p + " True")
+    if configs["save_pts_separately"]:
+        create_pars.append("--save_pts_separately")
 
     for batch_idx in batches:
         print("Dispatching imputation for batch {}".format(batch_idx))
@@ -89,6 +91,9 @@ if __name__=="__main__":
     parser.add_argument("--create_static", action="store_true")
     parser.add_argument("--create_dynamic", action="store_true")
     parser.add_argument("--create_async", action="store_true")
+    parser.add_argument("--save_pts_separately", action="store_true",
+            help="If selected, each patient's data will be saved to a " \
+                    "separate file")
 
     args=parser.parse_args()
     configs=vars(args)

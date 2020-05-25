@@ -86,60 +86,64 @@ class Timegridder():
 
         min_ts = hr_col.observationoffset.min()
         max_ts = hr_col.observationoffset.max()
-        timegrid = np.arange(0.0, max_ts-min_ts, self.timegrid_step_mins)
-        df_out_dict = {}
-        df_out_dict["ts"] = timegrid
+        N = int( (max_ts + 1) / self.timegrid_step_mins )
+        num_total_vars = 1 + len(self.sel_vs_vars) + len(self.sel_avs_vars) \
+                + len(self.lab_vars)
+        data_mat = np.zeros((N, num_total_vars)) * np.nan
+        time_arr = np.arange(0.0, max_ts+1, self.timegrid_step_mins).astype(\
+                np.uint32)
+        data_mat[:,0] = time_arr
+        # Add timestamps in at the end
 
-        
-        if self.create_pid_col:
-            df_out_dict["patientunitstayid"] = []
-
+        var_names = ["ts"]
+        var_idx = 1
+        ts_idx_list = list(range(N)) # List of timestamps that have no data
         for var in self.sel_vs_vars:
             finite_df = df_vs[["observationoffset", var]].dropna() 
             raw_ts = np.array(finite_df["observationoffset"])
             raw_values = np.array(finite_df[var])
-            pred_values = eicu_impute.impute_variable(raw_ts, raw_values,
-                    timegrid, leave_nan_threshold_secs=\
-                            self.max_forward_fill_secs_vs,
-                            grid_period=self.timegrid_step_mins,
-                            normal_value=self.var_quantile_dict[\
-                                    "periodic_"+var][49])
-            df_out_dict["vs_{}".format(var)] = pred_values
+            for ts,val in zip(raw_ts,raw_values):
+                if ts >= min_ts and ts <= max_ts:
+                    ts_idx = np.where(time_arr==ts)[0][0]
+                    data_mat[ts_idx, var_idx] = val
+                    if ts_idx in ts_idx_list:
+                        ts_idx_list.remove(ts_idx)
+            var_idx += 1
+            var_names.append( "vs_{}".format(var) )
 
         for var in self.sel_avs_vars:
             finite_df = df_avs[["observationoffset", var]].dropna()
             raw_ts = np.array(finite_df["observationoffset"])
             raw_values = np.array(finite_df[var])
-            pred_values = eicu_impute.impute_variable(raw_ts, raw_values,
-                    timegrid, leave_nan_threshold_secs=\
-                            self.max_forward_fill_secs_avs,
-                            grid_period=self.timegrid_step_mins,
-                            normal_value=self.var_quantile_dict[\
-                                    "aperiodic_"+var][49])
-            df_out_dict["avs_{}".format(var)] = pred_values
+            for ts,val in zip(raw_ts,raw_values):
+                if ts >= min_ts and ts <= max_ts:
+                    ts_idx = np.where(time_arr==ts)[0][0]
+                    data_mat[ts_idx, var_idx] = val
+                    if ts_idx in ts_idx_list:
+                        ts_idx_list.remove(ts_idx)
+            var_idx += 1
+            var_names.append( "avs_{}".format(var) )
 
         for var in self.lab_vars:
-            normal_value = self.var_quantile_dict["lab_"+var][49]
             sel_df = df_lab[df_lab["labname"] == var]
-            if sel_df.shape[0] == 0:
-                pred_values = mlhc_array.value_empty(timegrid.size,
-                        normal_value)
-            else:
+            if sel_df.shape[0] > 0:
                 finite_df = sel_df[["labresultoffset", "labresult"]].dropna()
                 raw_ts = np.array(finite_df["labresultoffset"])
                 raw_values = np.array(finite_df["labresult"])
-                pred_values = eicu_impute.impute_variable(raw_ts, raw_values,
-                        timegrid, leave_nan_threshold_secs=\
-                                self.max_forward_fill_secs_lab,
-                                grid_period=self.timegrid_step_mins,
-                                normal_value=normal_value)
-
-            df_out_dict["lab_{}".format(var)] = pred_values
+                for ts,val in zip(raw_ts,raw_values):
+                    if ts >= min_ts and ts <= max_ts:
+                        ts_idx = np.where(time_arr==ts)[0][0]
+                        data_mat[ts_idx, var_idx] = val
+                        if ts_idx in ts_idx_list:
+                            ts_idx_list.remove(ts_idx)
+            var_idx += 1
+            var_names.append( "lab_{}".format(var) )
 
         self._adapt_vars_for_async(reset=True)
 
-        df_out = pd.DataFrame(df_out_dict)
-        df_out = df_out.dropna(how="all")
+        data_mat = np.delete(data_mat, ts_idx_list, 0)
+
+        df_out = pd.DataFrame(data_mat, columns=var_names)
         return df_out
 
     def transform(self, df_lab, df_vs, df_avs, pid=None):

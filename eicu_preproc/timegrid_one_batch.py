@@ -99,34 +99,43 @@ def timegrid_one_batch(configs):
                 df_async = grid_model.save_async(df_lab, df_vs, df_avs,
                         pid=pid)
 
-        append = not first_write
-        mode = 'a' if first_write else 'w'
 
-        if create_dynamic:
-            df_out.to_hdf(os.path.join(configs["output_dynamic_dir"],
-                "batch_{}.h5".format(batch_id)), configs["output_dset_id"],
-                append=append, data_columns=["patientunitstayid"],
-                mode=mode, format="table",
-                complevel=configs["hdf_comp_level"],
-                complib=configs["hdf_comp_alg"])
+        if configs["save_pts_separately"]:
+            if create_async:
+                df_async.to_hdf(os.path.join(configs["output_async_dir"],
+                    "{}.h5".format(pid)), configs["output_dset_id"],
+                    append=False, data_columns=["ts"],
+                    mode='w', format="table",
+                    complevel=configs["hdf_comp_level"],
+                    complib=configs["hdf_comp_alg"])
+        else:
+            append = not first_write
+            mode = 'w' if first_write else 'a'
+            if create_dynamic:
+                df_out.to_hdf(os.path.join(configs["output_dynamic_dir"],
+                    "batch_{}.h5".format(batch_id)), configs["output_dset_id"],
+                    append=append, data_columns=["patientunitstayid"],
+                    mode=mode, format="table",
+                    complevel=configs["hdf_comp_level"],
+                    complib=configs["hdf_comp_alg"])
 
-        if create_async:
-            df_async.to_hdf(os.path.join(configs["output_async_dir"],
-                "batch_{}.h5".format(batch_id)), configs["output_dset_id"],
-                append=append, data_columns=["patientunitstayid"],
-                mode=mode, format="table",
-                complevel=configs["hdf_comp_level"],
-                complib=configs["hdf_comp_alg"])
+            if create_async:
+                df_async.to_hdf(os.path.join(configs["output_async_dir"],
+                    "batch_{}.h5".format(batch_id)), configs["output_dset_id"],
+                    append=append, data_columns=["patientunitstayid"],
+                    mode=mode, format="table",
+                    complevel=configs["hdf_comp_level"],
+                    complib=configs["hdf_comp_alg"])
 
-        if create_static:
-            df_static.to_hdf(os.path.join(configs["output_static_dir"],
-                "batch_{}.h5".format(batch_id)), configs["output_dset_id"],
-                append=append, data_columns=["patientunitstayid"],
-                mode=mode, format="table",
-                complevel=configs["hdf_comp_level"],
-                complib=configs["hdf_comp_alg"])
+            if create_static:
+                df_static.to_hdf(os.path.join(configs["output_static_dir"],
+                    "batch_{}.h5".format(batch_id)), configs["output_dset_id"],
+                    append=append, data_columns=["patientunitstayid"],
+                    mode=mode, format="table",
+                    complevel=configs["hdf_comp_level"],
+                    complib=configs["hdf_comp_alg"])
 
-        first_write = False
+            first_write = False
 
 
 
@@ -204,6 +213,9 @@ if __name__ == "__main__":
     parser.add_argument("--batch_id", type=int,
             default=0,
             help="Batch index to process in this script")
+    parser.add_argument("--save_pts_separately", action="store_true",
+            help="If selected, each patient's data will be saved to a " \
+                    "separate file")
     parser.add_argument("--run_mode",
             default="INTERACTIVE",
             help="Running mode, interactive or on cluster?")
