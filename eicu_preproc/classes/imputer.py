@@ -86,11 +86,11 @@ class Timegridder():
 
         min_ts = hr_col.observationoffset.min()
         max_ts = hr_col.observationoffset.max()
-        N = int( (max_ts + 1) / self.timegrid_step_mins )
+        N = int( (max_ts - min_ts + 1) / self.timegrid_step_mins )
         num_total_vars = 1 + len(self.sel_vs_vars) + len(self.sel_avs_vars) \
                 + len(self.lab_vars)
         data_mat = np.zeros((N, num_total_vars)) * np.nan
-        time_arr = np.arange(0.0, max_ts+1, self.timegrid_step_mins).astype(\
+        time_arr = np.arange(min_ts, max_ts+1,self.timegrid_step_mins).astype(\
                 np.uint32)
         data_mat[:,0] = time_arr
         # Add timestamps in at the end
