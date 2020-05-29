@@ -91,7 +91,7 @@ class Timegridder():
                 + len(self.lab_vars)
         data_mat = np.zeros((N, num_total_vars)) * np.nan
         time_arr = np.arange(min_ts, max_ts+1,self.timegrid_step_mins).astype(\
-                np.uint32)
+                np.int32)
         data_mat[:,0] = time_arr
         # Add timestamps in at the end
 
