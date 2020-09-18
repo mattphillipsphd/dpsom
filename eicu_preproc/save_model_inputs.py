@@ -89,12 +89,12 @@ def parmap_batch_generator(data_total, endpoints_total, mins_dynamic,
 
 def main(cfg):
     # path of the preprocessed data
-    data_total = glob( pj(HOME, "Datasets/eicu-2.0/time_grid/batch_*.h5") )
+    data_total = glob( pj(HOME, "Datasets/EHRs/eICU/time_grid/batch_*.h5") )
 
     # path of the labels of the preprocessed data
-    endpoints_total = glob( pj(HOME, "Datasets/eicu-2.0/labels/batch_*.h5") )
+    endpoints_total = glob( pj(HOME, "Datasets/EHRs/eICU/labels/batch_*.h5") )
 
-    normalization_path = pj(HOME, "Datasets/eicu-2.0/time_grid/" \
+    normalization_path = pj(HOME, "Datasets/EHRs/eICU/time_grid/" \
             "normalization_values.h5")
     if pe(normalization_path):
         # path of the labels of the mins
@@ -125,7 +125,7 @@ def main(cfg):
     stub += "%d" % np.abs(max_n_step)
     if not has_normalization:
         stub += "_nonorm"
-    output_path = pj(HOME, "Datasets/eicu-2.0", stub+".csv")
+    output_path = pj(HOME, "Datasets/EHRs/eICU", stub+".csv")
     hf = h5py.File(output_path, 'w')
     hf.create_dataset('x', data=d)
     hf.create_dataset('y', data=l)

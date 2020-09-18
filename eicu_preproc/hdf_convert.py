@@ -27,6 +27,7 @@ TABLES=["admissionDrug", "admissionDx", "allergy", "apacheApsVar",
 # TODO Removing nurseCharting.csv for the momemtn because it's too big
 
 def hdf_convert(configs):
+    global TABLES
     if configs["use_nurseCharting"]:
         TABLES += ["nurseCharting"]
     else:
@@ -77,11 +78,13 @@ if __name__=="__main__":
             help="HDF compression algorithm to use")
 
     # Input paths
-    parser.add_argument("--source_data_dir", default="../data/csv",
+    parser.add_argument("--source_data_dir",
+            default=pj(HOME, "Datasets/EHRs/eICU/csv"),
             help="Source data directory with CSV tables") 
 
     # Output paths
-    parser.add_argument("--dest_dir", default="../data/hdf",
+    parser.add_argument("--dest_dir", 
+            default=pj(HOME, "Datasets/EHRs/eICU/hdf"),
             help="Destination directory where the HDF tables should be saved " \
                     "into")
 

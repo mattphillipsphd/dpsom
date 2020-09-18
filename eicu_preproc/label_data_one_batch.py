@@ -68,21 +68,21 @@ if __name__ == "__main__":
 
     # Input paths
     parser.add_argument("--imputed_data_dir",
-            default=pj(HOME, "Datasets/eicu-2.0/time_grid"),
+            default=pj(HOME, "Datasets/EHRs/eICU/time_grid"),
             help="Imputed data dir")
     parser.add_argument("--input_patient_table",
-            default=pj(HOME, "Datasets/eicu-2.0/hdf/patient.h5"),
+            default=pj(HOME, "Datasets/EHRs/eICU/hdf/patient.h5"),
             help="Input patient table path") 
     parser.add_argument("--pid_batch_file",
-            default=pj(HOME, "Datasets/eicu-2.0/patient_batches.pickle"),
+            default=pj(HOME, "Datasets/EHRs/eICU/patient_batches.pickle"),
             help="Specify the map from PIDs to batches") 
 
     # Output paths
     parser.add_argument("--output_dynamic_endpoint_dir",
-            default=pj(HOME, "Datasets/eicu-2.0/labels"),
+            default=pj(HOME, "Datasets/EHRs/eICU/labels"),
             help="Output directory for dynamic endpoints") 
     parser.add_argument("--log_dir",
-            default=pj(HOME, "Datasets/eicu-2.0/logs"),
+            default=pj(HOME, "Datasets/EHRs/eICU/logs"),
             help="Logging directory")
 
     # Arguments

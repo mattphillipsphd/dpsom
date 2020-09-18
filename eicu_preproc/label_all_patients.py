@@ -56,7 +56,7 @@ if __name__=="__main__":
 
     # Input paths
     parser.add_argument("--patient_batch_path",
-            default=pj(HOME, "Datasets/eicu-2.0/patient_batches.pickle"),
+            default=pj(HOME, "Datasets/EHRs/eICU/patient_batches.pickle"),
             help="The path of the PID-Batch map") 
     parser.add_argument("--compute_script_path",
             default=pj(HOME, "Repos/mattphillipsphd/dpsom/eicu_preproc/" \
@@ -65,7 +65,7 @@ if __name__=="__main__":
 
     # Output paths
     parser.add_argument("--log_base_dir",
-            default=pj(HOME, "Datasets/eicu-2.0/logs"),
+            default=pj(HOME, "Datasets/EHRs/eICU/logs"),
             help="Log base directory")
 
     # Parameters
